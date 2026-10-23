@@ -33,7 +33,7 @@ func TestTheScopeLineNamesAHyphenatedProjectLikeTheRows(t *testing.T) {
 			`{"type":"assistant","sessionId":"` + id + `","cwd":` + string(cwdJSON) + `,"timestamp":"2026-10-17T10:01:00Z","message":{"role":"assistant","content":[{"type":"tool_use","name":"Write","input":{"file_path":` + string(notes) + `,"content":"release"}}]}}`,
 		})
 	}
-	if _, err := captureRun(t, "index"); err != nil {
+	if _, err = captureRun(t, "index"); err != nil {
 		t.Fatal(err)
 	}
 	t.Chdir(cwd)
