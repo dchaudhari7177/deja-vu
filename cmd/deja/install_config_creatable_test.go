@@ -28,9 +28,14 @@ func TestCursorAutoRefusesAStatusLineDirectoryItCannotMakeBeforeWriting(t *testi
 	if err := os.WriteFile(blocker, []byte("not a directory\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	// On unix the read of cli-config.json already fails with ENOTDIR and
+	// refuses the target; Windows reports the path as not found, and the
+	// pre-flight's mkdir check is what refuses it there. Either way nothing
+	// may have been written.
 	_, err := captureRun(t, "install", "cursor-auto", "--no-index")
-	if err == nil || !strings.Contains(err.Error(), "mkdir "+blocker) {
-		t.Fatalf("install err = %v, want cursor-auto refused", err)
+	if err == nil || !strings.Contains(err.Error(), "cursor-auto") ||
+		(!strings.Contains(err.Error(), "mkdir "+blocker) && !strings.Contains(err.Error(), "not a directory")) {
+		t.Fatalf("install err = %v, want cursor-auto refused over %s", err, blocker)
 	}
 	for _, name := range []string{"mcp.json", "hooks.json"} {
 		if _, err := os.Stat(filepath.Join(sources.CursorCLIHome(), name)); err == nil {
